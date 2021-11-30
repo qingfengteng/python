@@ -1,0 +1,49 @@
+import requests
+import re
+
+domain = 'https://www.dy2018.com/'
+resp = requests.get(domain,verify=False)
+#verify = False 去掉安全验证
+resp.encoding = 'gb2312'  #指定字符集
+# print(resp.text)
+
+
+
+obj1 = re.compile(r'2021必看热片.*?<ul>(?P<ul>.*?)</ul>',re.S)
+#1.定位到2021必看片 注意/的出现
+obj2 = re.compile(r"<a href='(?P<href>.*?)'",re.S)
+#2,提取必看片里面的链接，其中注意href的单引号闭合
+obj3 = re.compile(r'◎片　　名(?P<movie>.*?)<br />.*?<td '
+                  r'style="WORD-WRAP: break-word" bgcolor="#fdfddf"><a href="(?P<lianjie>.*?)">',re.S)
+#3，提取子页面里面的内容
+res1 = obj1.finditer(resp.text)
+child_href_list = []
+#定义一个列表，保存拼接后的url地址
+for it in res1:
+    ul = it.group('ul')
+    print(ul)
+
+
+
+    res2 = obj2.finditer(ul)
+    #提取子页面的链接
+    for itt in res2:
+        child_href = domain + itt.group('href').strip('/')
+        #拼接子页面的url地址：域名 + 子页面地址 最后去掉最后的/
+        child_href_list.append(child_href)
+        #把子页面的链接地址保存到自己预设的地址里
+        print(itt.group('href'))
+
+
+for href in child_href_list:
+    #拿到子页面的链接，其中href为子页面的链接
+
+    child_resp = requests.get(href,verify=False)
+
+    #定义一个新的接收包，拿到子页面的内容
+    child_resp.encoding = 'gb2312'
+    #print(child_resp.text)
+    res3 = obj3.search(child_resp.text)
+    print(res3.group('movie'))
+    print(res3.group('lianjie'))
+

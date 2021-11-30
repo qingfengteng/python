@@ -1,0 +1,28 @@
+import time
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver import Chrome
+from selenium.webdriver.support.select import Select
+
+opt = Options()
+opt.add_argument('--headless')
+opt.add_argument('--disbale-gpu')
+#无头浏览器的设置
+web = Chrome(options=opt)
+#加入无头的属性
+
+web.get('https://www.endata.com.cn/BoxOffice/BO/Year/index.html')
+sel_el = web.find_element_by_xpath('//*[@id="OptionDate"]')
+#定位到下拉列表
+sel = Select(sel_el)
+for i in range(len(sel.options)):
+    #i就是每一个下拉框选项的索引位置
+    sel.select_by_index(i)
+    #按照索引进行切换
+    time.sleep(2)
+    table = web.find_element_by_xpath('//*[@id="TableList"]/table')
+    print(table.text)
+    #打印所有的文本信息
+print('运行完毕')
+print(web.page_source)
+#拿到网页里面真正显示的东西，并非右击查看源代码
+web.close()

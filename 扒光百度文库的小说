@@ -1,0 +1,53 @@
+import requests
+import asyncio
+import aiohttp
+import json
+import aiofiles
+
+第一步，同步操作，使用requests的到所有章节的cid和名称
+定义一个空列表，请求那个url，并且将想要的cid和b_id,title提取出来加入到task中
+第二步，异步操作，定义一个异步函数，并且把需要的data建立一个{}，然后把data赋给url，此时的url为具体的某章内容
+第三步，准备session，使用async with aiohttp.ClientSession() as session:，去请求上边的url，然后发送请求，使用dic得到自己想要的json内容，其中包括小说内容
+第四步，把自己之前创建的同步操作修改为异步操作，并且主函数那里也需要修改为异步调用
+第五步，把读取到的小说写入文件
+'''
+#1.同步操作，访问getCatalog  拿到所有的章节cid和名称
+#2.异步操作，访问getchaptercontent  下载所有的章节内容
+async def aiodownload(cid,b_id,title):
+    data={
+        'book_id':b_id,
+        'cid':f'{b_id}|{cid}',
+        'need_bookinfo':1
+
+    }
+    data = json.dumps(data)
+    url = f'http://dushu.baidu.com/api/pc/getChapterContent?data={data}'
+async with aiohttp.ClientSession() as session:
+        #准备好session
+        async with session.get(url) as resp:
+            #发送请求
+            dic = await  resp.json()
+            #得到想要的json
+            dic['data']['novel']['content']
+            #提取到json里面的数据
+
+            #写入文件
+            async with aiofiles.open(title,mode='w',encoding='utf-8') as f:
+                await  f.write(dic['data']['novel']['content']) #把小说内容写出
+async def getCatalog(url):
+    resp = requests.get(url)
+    dic = resp.json()
+    tasks = []
+    #准备一个空的列表
+    for item in dic['data']['novel']['items']:
+        # item就是对应每一个章节的名称和cid
+        title = item['title']
+        cid = item['cid']
+        tasks.append(aiodownload(cid,b_id,title))
+    await asyncio.wait(tasks)
+
+if __name__ == '__main__':
+    b_id = '4305713956'
+    url = 'http://dushu.baidu.com/api/pc/getCatalog?data={"book_id":"' + b_id + '"}'
+    asyncio.run(getCatalog(url))
+

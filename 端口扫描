@@ -1,0 +1,18 @@
+import socket
+#1、原生写socket，进行tcp，udp扫描
+#2、调用第三方模块进行扫描
+#3、调用系统工具脚本执行
+
+def port_check(url):
+    ports={'21','22','135','443','445','80','8080','1433','3306','3389','1521','8000','7001','7002','8080','9090','8090','4848'}
+    #每次循环根据以上的端口，判断是否开启
+    for port in ports:
+        #每次循环进行socket链接
+        server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        #使用connect_ex()判断ip对应的端口是否开启
+        result=server.connect_ex((url,int(port)))
+        #connect_ex()结果返回0的时候为开启
+        if result==0:
+            print(port+'open')
+        else:
+            print(port+'close')

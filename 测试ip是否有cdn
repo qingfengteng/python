@@ -1,0 +1,14 @@
+import os
+#采用nslookup执行结果返回ip检查
+#采用python去调用执行系统命令
+#cdn_data=os.system('nslookup www.xiaodi8.co ')     
+#使用popen获取ip，在输出中发现，如果没有cdn一共是10个点，那么当大于10个点的时候就代表有cdn
+def cdn_check(url):
+    cdn_data=os.popen('nslookup '+url)
+    cdn_datas=cdn_data.read()
+    count=cdn_datas.count('.')
+    if count>10:
+        print('cdn存在')
+    else:
+        print('cdn不存在')
+        #print(cdn_datas)

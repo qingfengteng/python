@@ -1,0 +1,23 @@
+python
+#使用相应字典进行爆破
+#利用bing或第三方接口进行查询
+#让zym_data循环子域名文件，并使用replace替换\n为空
+
+#定义一个函数，当传入url的时候执行函数
+def zym_check(url):
+    #去掉www.剩下域名的后半部分 baidu.com
+    urls=url.replace('www.','')
+
+    #撞库碰字典
+    for zym_data in open('xxx.txt'):
+        #将字典中的换行符去掉
+        zym_data=zym_data.replace('\n','')
+        #将字典中的域名前缀与后面的域名进行拼接
+        urls=zym_data+urls
+        #抛出异常。当拼接的域名能获取到ip地址时代表猜对了，没有获取到pass跳过、
+        try:
+            # 获取ip
+            ip = socket.gethostbyname(url)
+            print(url+'->'+ip)
+        except Exception as e:
+            pass

@@ -1,0 +1,51 @@
+import requests
+from bs4 import BeautifulSoup
+import time
+domain = 'https://umei.cc/'
+url = "https://www.umei.cc/bizhitupian/weimeibizhi/"
+resp = requests.get(url)
+resp.encoding = 'utf-8'  # 处理乱码
+
+# print(resp.text)
+
+main_page = BeautifulSoup(resp.text, "html.parser")
+# 把源代码交给bs
+alist = main_page.find("div", class_="TypeList").find_all("a")
+#筛选条件为div的标签为type的所有a标签，并且放在alist里面
+# print(alist)
+for a in alist:
+    #在alist里面遍历a标签每一次出现的次数
+    href = a.get('href')
+    hrefs = domain + href
+    #拼接两个链接为一个正常的链接
+
+
+
+    child_page_resp = requests.get(hrefs)
+    # 拿到子页面的源代码
+    child_page_resp.encoding = 'utf-8'
+    child_page_text = child_page_resp.text
+
+    child_page = BeautifulSoup(child_page_text, "html.parser")
+    #交给beautiful处理
+    p = child_page.find("p", align="center")
+    #筛选为p标签，满足align=‘center’的并且放入p
+    img = p.find("img")
+    #把找到的img标签放入img中
+    src = img.get("src")
+    #print(src)
+    #找到img中的src,src为图片的链接
+
+
+    #拿取图片
+    img_resp = requests.get(src)
+    # img_resp.content  # 这里拿到的是字节
+    img_name = src.split("/")[-1]  # 拿到url中的最后一个/以后的内容
+    with open("img/"+img_name, mode="wb") as f:
+        f.write(img_resp.content)  # 图片内容写入文件
+
+    print("over!!!", img_name)
+    time.sleep(1)
+
+
+print("all over!!!")

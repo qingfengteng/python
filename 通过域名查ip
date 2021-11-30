@@ -1,0 +1,3 @@
+def ip_check(url):
+    ip=socket.gethostbyname(url)
+    print(ip)
